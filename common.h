@@ -92,4 +92,13 @@ typedef struct {
 	int speed;
 } OBJECT_SAMPLE;
 
+typedef struct {
+	POSITION pos;	//기준 위치
+	char Type;		//화면에 표시될 문자
+	int direction;	//방향. 
+	int radius;		//크기. (1x1, 2x2)
+	//플레이어쪽이면 0, 적이면 1, 중립이면 2
+	//int isThickness;
+} DUNE_STRUCTURE;
+
 #endif

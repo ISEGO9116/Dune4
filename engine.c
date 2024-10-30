@@ -36,6 +36,13 @@ OBJECT_SAMPLE obj = {
 	.next_move_time = 300
 };
 
+DUNE_STRUCTURE base = {
+	.pos = {MAP_HEIGHT-2, 1}, //두번째 인자가 가로, 첫 번째 인자가 높이
+	.direction = 1,
+	.radius = 2,
+	.Type = 'B'
+};
+
 /* ================= main() =================== */
 int main(void) {
 	srand((unsigned int)time(NULL));
@@ -84,6 +91,27 @@ void outro(void) {
 	exit(0);
 }
 
+/* ======== 건물 생성 ========= */
+//중심 위치, 크기(1x1, 2x2, ...), 방향(0:플레이어, 1:적), 표시 문자
+void spawn_struct(POSITION pos, int size, int dir, char Type) {
+	//dir이 0이면 좌표에서 우상단으로, 
+	//1이면 좌하단을 바라보게 배치
+	if (dir == 0) {
+		//우상단을 향해 배치
+		map[0][pos.row][pos.column] = 'C'; // 중심 좌표 확인 용도
+		map[0][pos.row - 1][pos.column] = Type;
+		map[0][pos.row][pos.column + 1] = Type;
+		map[0][pos.row - 1][pos.column + 1] = Type;
+	}
+	else {
+		//좌하단을 향해 배치
+		map[0][pos.row][pos.column] = 'C'; //중심 좌표 확인 용도
+		map[0][pos.row + 1][pos.column] = Type;
+		map[0][pos.row][pos.column -1] = Type;
+		map[0][pos.row + 1][pos.column - 1] = Type;
+	}
+}
+
 void init(void) {
 	// layer 0(map[0])에 지형 생성
 	for (int j = 0; j < MAP_WIDTH; j++) {
@@ -106,8 +134,11 @@ void init(void) {
 		}
 	}
 
+	spawn_struct(base.pos, base.radius, base.direction, base.Type);
+
 	// object sample
 	map[1][obj.pos.row][obj.pos.column] = 'o';
+	//map[0][base.pos.row][base.pos.column] = 'C';
 }
 
 // (가능하다면) 지정한 방향으로 커서 이동
@@ -123,6 +154,8 @@ void cursor_move(DIRECTION dir) {
 		cursor.current = new_pos;
 	}
 }
+
+
 
 /* ================= sample object movement =================== */
 POSITION sample_obj_next_position(void) {
