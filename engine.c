@@ -6,7 +6,7 @@
 #include "display.h"
 
 void init(void);
-void intro(void);//주석추가 테스트
+void intro(void);
 void outro(void);
 void cursor_move(DIRECTION dir);
 void sample_obj_move(void);
