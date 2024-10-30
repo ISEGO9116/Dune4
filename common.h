@@ -90,15 +90,20 @@ typedef struct {
 	int move_period;	// '몇 ms마다 한 칸 움직이는지'를 뜻함
 	int next_move_time;	// 다음에 움직일 시간
 	int speed;
-} OBJECT_SAMPLE;
+} DUNE_OBJECT;
 
 typedef struct {
 	POSITION pos;	//기준 위치
-	char Type;		//화면에 표시될 문자
+	char type;		//화면에 표시될 문자
 	int direction;	//방향. 
 	int radius;		//크기. (1x1, 2x2)
 	//플레이어쪽이면 0, 적이면 1, 중립이면 2
 	//int isThickness;
 } DUNE_STRUCTURE;
+
+typedef struct {
+	POSITION pos;	//기준 위치
+	int mineable_amount; //스파이스 매장량
+} DUNE_SPICEMINE;
 
 #endif

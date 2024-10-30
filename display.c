@@ -58,15 +58,18 @@ void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP
 	}
 }
 
+//맵 표시 함수, 변경점이 있다면 printc()
 void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	project(map, backbuf);
 
 	for (int i = 0; i < MAP_HEIGHT; i++) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
+			//각 칸에 대하여 변경점이 있다면 printc()
 			if (frontbuf[i][j] != backbuf[i][j]) {
 				POSITION pos = {i, j };
 				printc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT);
 			}
+			//이후 덮어쓰기하고 넘긴다.
 			frontbuf[i][j] = backbuf[i][j];
 		}
 	}
@@ -83,3 +86,4 @@ void display_cursor(CURSOR cursor) {
 	ch = frontbuf[curr.row][curr.column];
 	printc(padd(map_pos, curr), ch, COLOR_CURSOR);
 }
+

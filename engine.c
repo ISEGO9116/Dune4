@@ -21,14 +21,14 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 /* ================= game data =================== */
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
-RESOURCE resource = { 
+RESOURCE resource = {
 	.spice = 0,
 	.spice_max = 0,
 	.population = 0,
 	.population_max = 0
 };
 
-OBJECT_SAMPLE obj = {
+DUNE_OBJECT obj = {
 	.pos = {1, 1},
 	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
 	.repr = 'o',
@@ -36,12 +36,79 @@ OBJECT_SAMPLE obj = {
 	.next_move_time = 300
 };
 
+
+/* ================= 유닛 =================== */
+//하베스터
+DUNE_OBJECT havester = {
+	.pos = {MAP_HEIGHT - 4, 1},
+	.repr = 'H',
+	.speed = 0,
+	.next_move_time = 2000,
+};
+DUNE_OBJECT havester_AI = {
+	.pos = {3, MAP_WIDTH - 2},
+	.repr = 'H',
+	.speed = 0,
+	.next_move_time = 2000,
+};
+
+
+/* ================= 지형, 건물 =================== */
+//기지
 DUNE_STRUCTURE base = {
-	.pos = {MAP_HEIGHT-2, 1}, //두번째 인자가 가로, 첫 번째 인자가 높이
+	.pos = {MAP_HEIGHT - 2, 1}, //두번째 인자가 가로, 첫 번째 인자가 높이
+	.direction = 0,
+	.radius = 2,
+	.type = 'B'
+};
+DUNE_STRUCTURE base_AI = {
+	.pos = {MAP_HEIGHT + 1, MAP_WIDTH - 2}, //두번째 인자가 가로, 첫 번째 인자가 높이
 	.direction = 1,
 	.radius = 2,
-	.Type = 'B'
+	.type = 'A'
 };
+
+//스파이스 매장지
+DUNE_SPICEMINE spicemine = {
+	.pos = {MAP_HEIGHT - 6, 1},
+	.mineable_amount = 5,
+};
+DUNE_SPICEMINE spicemine_AI = {
+	.pos = {5, MAP_WIDTH - 2},
+	.mineable_amount = 5,
+};
+
+//바위
+DUNE_STRUCTURE rock_small = {
+	.pos = {MAP_HEIGHT - 7, 12},
+	.direction = 2,
+	.radius = 1,
+	.type = 'R'
+};
+DUNE_STRUCTURE rock_small_AI = {
+	.pos = {6, MAP_WIDTH - 13},
+	.direction = 2,
+	.radius = 1,
+	.type = 'R'
+};
+DUNE_STRUCTURE rock_large = {
+	.pos = {MAP_HEIGHT - 13, 16},
+	.direction = 0,
+	.radius = 2,
+	.type = 'R'
+};
+DUNE_STRUCTURE rock_large_AI = {
+	.pos = {13, MAP_WIDTH - 27},
+	.direction = 1,
+	.radius = 2,
+	.type = 'R'
+};
+
+
+
+
+
+
 
 /* ================= main() =================== */
 int main(void) {
@@ -70,7 +137,7 @@ int main(void) {
 		}
 
 		// 샘플 오브젝트 동작
-		sample_obj_move();
+		//sample_obj_move();
 
 		// 화면 출력
 		display(resource, map, cursor);
@@ -91,26 +158,52 @@ void outro(void) {
 	exit(0);
 }
 
+/* ======== 유닛 생성 ========= */
+void spawn_unit(DUNE_OBJECT d_obj) {
+	POSITION pos = d_obj.pos;
+	int speed = d_obj.speed;
+	char Type = d_obj.repr;
+
+	map[1][pos.row][pos.column] = Type;
+}
+
 /* ======== 건물 생성 ========= */
 //중심 위치, 크기(1x1, 2x2, ...), 방향(0:플레이어, 1:적), 표시 문자
-void spawn_struct(POSITION pos, int size, int dir, char Type) {
+void spawn_struct(DUNE_STRUCTURE d_strcture) {
 	//dir이 0이면 좌표에서 우상단으로, 
 	//1이면 좌하단을 바라보게 배치
-	if (dir == 0) {
-		//우상단을 향해 배치
-		map[0][pos.row][pos.column] = 'C'; // 중심 좌표 확인 용도
-		map[0][pos.row - 1][pos.column] = Type;
-		map[0][pos.row][pos.column + 1] = Type;
-		map[0][pos.row - 1][pos.column + 1] = Type;
-	}
-	else {
-		//좌하단을 향해 배치
-		map[0][pos.row][pos.column] = 'C'; //중심 좌표 확인 용도
-		map[0][pos.row + 1][pos.column] = Type;
-		map[0][pos.row][pos.column -1] = Type;
-		map[0][pos.row + 1][pos.column - 1] = Type;
+	POSITION pos = d_strcture.pos;
+	int size = d_strcture.radius;
+	int dir = d_strcture.direction;
+	char Type = d_strcture.type;
+	map[0][pos.row][pos.column] = 'C'; //중심 좌표 확인 용도
+	if (size == 2) {
+		if (dir == 0) {
+			//우상단을 향해 배치
+			map[0][pos.row - 1][pos.column] = Type;
+			map[0][pos.row][pos.column + 1] = Type;
+			map[0][pos.row - 1][pos.column + 1] = Type;
+		}
+		else if (dir == 1) {
+			//좌하단을 향해 배치
+			map[0][pos.row + 1][pos.column] = Type;
+			map[0][pos.row][pos.column - 1] = Type;
+			map[0][pos.row + 1][pos.column - 1] = Type;
+		}
 	}
 }
+
+/* ======== 스파이스 매장지 생성 ========= */
+void spawn_spicemine(DUNE_SPICEMINE d_spicemine) {
+	int spice_amount = d_spicemine.mineable_amount;
+	POSITION pos = d_spicemine.pos;
+
+	//map[0][pos.row][pos.column] = (char)spice_amount;
+	//임시) S로 표기
+	map[0][pos.row][pos.column] = 'S';
+
+}
+
 
 void init(void) {
 	// layer 0(map[0])에 지형 생성
@@ -134,11 +227,26 @@ void init(void) {
 		}
 	}
 
-	spawn_struct(base.pos, base.radius, base.direction, base.Type);
+	//건물 생성(사실 생성보다는 도장찍기에 가까움)
+	//(실제 이동은 이동 함수에서 이루어지고 곧장 화면이 새로고침되면서 사라지기 때문)
+	spawn_struct(base);
+	spawn_struct(base_AI);
+	spawn_struct(rock_small);
+	spawn_struct(rock_small_AI);
+	spawn_struct(rock_large);
+	spawn_struct(rock_large_AI);
+	spawn_spicemine(spicemine);
+	spawn_spicemine(spicemine_AI);
 
-	// object sample
-	map[1][obj.pos.row][obj.pos.column] = 'o';
-	//map[0][base.pos.row][base.pos.column] = 'C';
+	//오브젝트 생성
+	spawn_unit(havester);
+	spawn_unit(havester_AI);
+	//map[1][havester.pos.row][havester.pos.column] = havester.repr;
+
+	//// object sample
+	//map[1][obj.pos.row][obj.pos.column] = 'o';
+
+	
 }
 
 // (가능하다면) 지정한 방향으로 커서 이동
