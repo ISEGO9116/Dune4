@@ -11,6 +11,7 @@
 // 출력할 내용들의 좌상단(topleft) 좌표
 const POSITION resource_pos = { 0, 0 };
 const POSITION map_pos = { 1, 0 };
+const POSITION status_pos = { MAP_WIDTH - 2, 1 }; //한 칸 내림
 
 
 char backbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
@@ -57,6 +58,7 @@ void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP
 		}
 	}
 }
+
 
 //맵 표시 함수, 변경점이 있다면 printc()
 void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
