@@ -33,8 +33,21 @@ typedef enum {
 	// k_none: 입력된 키가 없음. d_stay(안 움직이는 경우)에 대응
 	k_none = 0, k_up, k_right, k_left, k_down,
 	k_quit,
+	k_space,
 	k_undef, // 정의되지 않은 키 입력	
 } KEY;
+
+typedef enum {
+	dune_Base = 'B', //본진
+	dune_Plate = 'P', //장판
+	dune_Rock = 'R', //돌
+	dune_Spice = 'S', //스파이스매장지
+} DEFINED_OBJECT;
+
+typedef enum {
+	dune_Warm = 'W', //샌드웜
+	dune_Harv = 'H', //하베스터
+} DEFINED_UNIT;
 
 
 // DIRECTION은 KEY의 부분집합이지만, 의미를 명확하게 하기 위해서 다른 타입으로 정의
