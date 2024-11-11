@@ -14,7 +14,7 @@ void cursor_doublemove(DIRECTION dir);
 void cursor_select();
 int is_defined_object(int layer, int w, int h);
 POSITION sample_obj_next_position(void);
-
+void display_defined_object_info(int layer, int w, int h);
 
 /* ================= control =================== */
 int sys_clock = 0;		// system-wide clock(ms)
@@ -197,7 +197,8 @@ void spawn_struct(DUNE_STRUCTURE d_strcture) {
 	int size = d_strcture.radius;
 	int dir = d_strcture.direction;
 	char Type = d_strcture.type;
-	map[0][pos.row][pos.column] = 'C'; //중심 좌표 확인 용도
+	//map[0][pos.row][pos.column] = 'C'; //중심 좌표 확인 용도
+	map[0][pos.row][pos.column] = Type; //중심 좌표 확인 용도
 	if (size == 2) {
 		if (dir == 0) {
 			//우상단을 향해 배치
@@ -318,49 +319,14 @@ void cursor_doublemove(DIRECTION dir) {
 //현재 커서 위치를 기반으로 map의 layer를 검사한다.
 void cursor_select() {
 	POSITION curr = cursor.current; //커서 위치 받아옴
-	//테스트 : 감지한게 대체 뭐임
-	//printf("감지한 것 : %c %c", map[1][curr.row][curr.column], 
-		//map[0][curr.row][curr.column]);
-	//layer 1꺼가 안읽힘(유닛x), layer0는 잘 읽힘(지형o)
-	//= 유닛이 없으면 아예 안읽히네?
-
-	//감지 방식을 아예 바꿔야 할 듯
-	//추가 함수를 이용해서 해당 문자열이 존재하는 문자열인지
-	//t/f를 리턴받아서 if분기해야 할 듯
-
 	if (is_defined_object(1, curr.row, curr.column)) {
 		//해당 위치의 문자열이 유효하다면
-		printf("레이어 1에 객체가 존재합니다.");
+		//상태창에 표시한다.
+		display_defined_object_info(1, curr.row, curr.column);
 	}
 	else {
-		printf("레이어 0에 객체가 존재합니다.");
+		display_defined_object_info(0, curr.row, curr.column);
 	}
-
-	//유닛 있다면 유닛명 표기
-	// = layer1의 문자열 받아서 함수에 넣어서 true면 해당 유닛 출력
-	//유닛 없다면 지형명 표기
-
-
-	////유닛이 있다면
-	//if (map[1][curr.row][curr.column] != 0) {
-	//	printf("유닛감지");
-	//}
-	//else if (map[0][curr.row][curr.column] != 0) {
-	//	//지형이 있다면
-	//	printf("지형감지");
-	//}
-	//else {
-	//	//사막 지형 정보 출력
-	//	printf("사막지형");
-	//}
-
-	//if (map[1][w][h])에서 유닛이 있는지 확인
-	//else if (map[0][w][h]에서 지형/오브젝트가 있는지 확인)
-	//else 둘다 없으면 기본인 사막 지형 정보 출력
-
-	//~가 있는지 확인 = 기본이 아님
-	//map의 기본 = {0}
-	//있으면 (0)오브젝트 정보, (1)유닛 정보 출력
 }
 
 int is_defined_object(int layer, int w, int h) {
@@ -369,33 +335,49 @@ int is_defined_object(int layer, int w, int h) {
 	if (layer == 1){ //유닛 모드
 		switch (pos_char) {
 		case 'W': 
-			//printf("판별가능-유닛"); 
 			return true;
 		case 'H': 
-			//printf("판별가능-유닛"); 
 			return true;
 		default: //판별 불가 (=기본)
-			//printf("판별불가"); 
 			return false;
 		}
 	}
 	else { //지형 모드
 		switch (pos_char) {
 		case 'B': 
-			//printf("판별가능-건물"); 
 			return true;
 		case 'P': 
-			//printf("판별가능-건물"); 
 			return true;
 		case 'R': 
-			//printf("판별가능-건물"); 
 			return true;
 		case 'S': 
-			//printf("판별가능-건물"); 
 			return true;
 		default:
-			//printf("판별불가"); 
 			return false;
+		}
+	}
+}
+
+// 오브젝트 정보(레이어, 위치)를 넣으면 해당 오브젝트를 확인하고 
+//그에 맞는 정보를 출력하게 한다. 
+void display_defined_object_info(int layer, int w, int h) {
+	char pos_char = map[layer][w][h];
+	if (layer == 1) { //유닛 모드
+		switch (pos_char) {
+		case 'W': change_display_info(21); break;
+		case 'H': change_display_info(22); break;
+		default: //판별 불가 (=기본)
+			change_display_info(11); break;
+		}
+	}
+	else { //지형 모드
+		switch (pos_char) {
+		case 'B': change_display_info(12); break;
+		case 'P': change_display_info(13); break;
+		case 'R': change_display_info(14); break;
+		case 'S': change_display_info(15); break;
+		default:
+			change_display_info(11); break;
 		}
 	}
 }

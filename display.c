@@ -18,7 +18,8 @@ char backbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
 char frontbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
 //상태창 배열
-char status[50][10] = { 0 }; //가로 50, 세로 10
+//char status[50][10] = { {0} }; //가로 50, 세로 10
+char status_var[50] = {0}; //문자열이 담기는 배열
 //[n][0]과 [n][9]는 #로 채우고, 나머지가 변하는 내용
 
 void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP_WIDTH]);
@@ -95,42 +96,81 @@ void display_cursor(CURSOR cursor) {
 	printc(padd(map_pos, curr), ch, COLOR_CURSOR);
 }
 
-void display_object_info() {
-	//위치 지정
-	//printf("**********");
-	
-	//첫 줄, 막줄은 별로 덮음,
-	for (int i = 0; i < 10; i++) {
-		for (int j = 0; j < 50; j++) {
-			if (i == 0 || i == 9) {
-				status[j][i] = '#';
-			}
-		}
+//배열에 문자열 삽입
+void insertString(char status_var[], const char* input) {
+	strncpy(status_var, input, 50);
+	status_var[49] = '\0'; // null terminator 추가
+}
+
+void change_display_info(int obj_id) {
+	//1n : 지형 (11 : 사막)
+	//2n : 유닛
+	switch (obj_id) {
+	case 11: insertString(status_var, "사막지형      ");
+		break;
+	case 12: insertString(status_var, "기지            ");
+		break;
+	case 13: insertString(status_var, "장판            ");
+		break;
+	case 14: insertString(status_var, "바위            ");
+		break;
+	case 15: insertString(status_var, "스파이스매장지         ");
+		break;
+	case 21: insertString(status_var, "샌드웜         ");
+		break;
+	case 22: insertString(status_var, "하베스터         ");
+		break;
 	}
+}
+
+void display_object_info() {
+	gotoxy(status_pos);
+	printf("=================================");
+	//상태창 내용 출력
+	POSITION pos_edited = { 2 , status_pos.column };
+	gotoxy(pos_edited);
+	printf("%s\n", status_var);
+	//for (int i = 0; i < 20; i++) {
+	//	POSITION pos_edited = { 2 , status_pos.column+i };
+	//	printc(pos_edited, status_var, COLOR_DEFAULT);
+	//}
+	POSITION pos_editedv2 = { 3 , status_pos.column };
+	gotoxy(pos_editedv2);
+	printf("=================================");
+
+	//첫 줄, 막줄은 별로 덮음,
+	//for (int i = 0; i < 10; i++) {
+	//	for (int j = 0; j < 50; j++) {
+	//		if (i == 0 || i == 9) {
+	//			status[j][i] = '#';
+	//		}
+	//	}
+	//}
 	//중간 내용은 받아와서 변한다.
 	//쓰는 곳에서 이어서 구현한다.
 	//여기서는 출력만 한다.
 
 	//gotoxy(status_pos); //위치 이동(printc 내부 기능으로 대체)
 
+
 	//한줄 출력 * 10
-	for (int i = 0; i < 10; i++) {
-		//가로 출력 
-		for (int j = 0; j < 50; j++) {
-			char ch = status[j][0]; //50, 5
+	//for (int i = 0; i < 10; i++) {
+	//	//가로 출력 
+	//	for (int j = 0; j < 50; j++) {
+	//		char ch = status[j][i]; //50, 5
 
-			POSITION pos_edited = { 1 + i , 
-				status_pos.column + j };
-			//세로 위치, 가로 위치
-
-			printc(pos_edited, ch, COLOR_DEFAULT); //위치, 문자열, 색상
-		}
-	}
+	//		POSITION pos_edited = { 1 + i , 
+	//			status_pos.column + j };
+	//		//세로 위치, 가로 위치
+	//		printc(pos_edited, ch, COLOR_DEFAULT); //위치, 문자열, 색상
+	//	}
+	//}
 
 	//첫줄, 막줄은 고정으로 출력, 
-	//중간만 특수 배열variable_status[]의
+	//중간만 특수 배열status_var[]의
 	//내용을 출력
 
+	//status_var
 
 
 
