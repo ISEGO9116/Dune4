@@ -12,6 +12,8 @@
 const POSITION resource_pos = { 0, 0 };
 const POSITION map_pos = { 1, 0 };
 const POSITION status_pos = { 1, 62 }; //상태창 위치
+const POSITION comand_pos = {21, 62}; //명령창 위치
+const POSITION systemMsg_pos = { 20, 0 }; //명령창 위치
 
 
 char backbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
@@ -20,7 +22,15 @@ char frontbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
 //상태창 배열
 //char status[50][10] = { {0} }; //가로 50, 세로 10
 char status_var[50] = {0}; //문자열이 담기는 배열
-//[n][0]과 [n][9]는 #로 채우고, 나머지가 변하는 내용
+
+//명령창 배열
+char command_var[50] = { 0 }; //문자열이 담기는 배열
+//명령창 변수 (유닛 키 입력 대기중)
+int isReadyForKey = 0; //기본 False
+
+//시스템 메시지
+char systemMsg_var_cur[50] = { 0 }; //문자열이 담기는 배열(현재)
+char systemMsg_var_pre[50] = { 0 }; //문자열이 담기는 배열(이전)
 
 void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP_WIDTH]);
 void display_resource(RESOURCE resource);
@@ -28,7 +38,15 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]);
 void display_cursor(CURSOR cursor);
 //상태창
 void display_object_info();
-
+//명령창
+void display_commands();
+void clear_command_display();
+int State_IsReadyForKey();
+void change_command_display(char string[50]);
+void Change_IsReadyForKey(int to);
+//시스템 메시지
+void display_system_message();
+void change_systemMsg_display(char string[50]);
 
 void display(
 	RESOURCE resource,
@@ -38,9 +56,9 @@ void display(
 	display_resource(resource);
 	display_map(map);
 	display_cursor(cursor);
-	// display_system_message()
+	display_system_message();
 	display_object_info();
-	// display_commands()
+	display_commands();
 	// ...
 }
 
@@ -106,9 +124,16 @@ void change_display_info(int obj_id) {
 	//1n : 지형 (11 : 사막)
 	//2n : 유닛
 	switch (obj_id) {
+	case 0: insertString(status_var, "                ");
+		break;
 	case 11: insertString(status_var, "사막지형      ");
 		break;
 	case 12: insertString(status_var, "기지            ");
+		//명령창에 명령어 표시
+		change_command_display("하베스터(H)");
+		//키 입력 대기 상태로 전환
+		Change_IsReadyForKey(1);
+		//만약 대기 상태에서 유닛 키 입력시 생산 시작 / ESC시, 선택 취소
 		break;
 	case 13: insertString(status_var, "장판            ");
 		break;
@@ -134,56 +159,85 @@ void display_object_info() {
 	//	POSITION pos_edited = { 2 , status_pos.column+i };
 	//	printc(pos_edited, status_var, COLOR_DEFAULT);
 	//}
-	POSITION pos_editedv2 = { 3 , status_pos.column };
+	POSITION pos_editedv2 = { 10 , status_pos.column };
 	gotoxy(pos_editedv2);
 	printf("=================================");
+}
 
-	//첫 줄, 막줄은 별로 덮음,
-	//for (int i = 0; i < 10; i++) {
-	//	for (int j = 0; j < 50; j++) {
-	//		if (i == 0 || i == 9) {
-	//			status[j][i] = '#';
-	//		}
-	//	}
-	//}
-	//중간 내용은 받아와서 변한다.
-	//쓰는 곳에서 이어서 구현한다.
-	//여기서는 출력만 한다.
+//명령창
+void display_commands() {
+	//윗줄
+	gotoxy(comand_pos); //20, 62
+	printf("=================================");
+	
+	//명령창 내용 출력
+	POSITION pos_edited = { 11 , status_pos.column };
+	gotoxy(pos_edited);
+	//clear_command_display(); //명령창 클리어
+	printf("%s\n", command_var);
 
-	//gotoxy(status_pos); //위치 이동(printc 내부 기능으로 대체)
+	//밑줄
+	POSITION pos_editedv2 = { 25, comand_pos.column };
+	gotoxy(pos_editedv2); // 25, 62
+	printf("=================================");
+}
+
+//명령창 클리어
+void clear_command_display() {
+	insertString(command_var, "                              ");
+}
+
+//명령창 업데이트
+void change_command_display(char string[50]) {
+	insertString(command_var, string);
+	//텍스트 변경
+}
+
+//isReadyForKey가 T/F인지 확인
+int State_IsReadyForKey() {
+	if (isReadyForKey) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+//isReadyforKey의 상태를 변경하는 함수
+void Change_IsReadyForKey(int to) {
+	isReadyForKey = to;
+}
 
 
-	//한줄 출력 * 10
-	//for (int i = 0; i < 10; i++) {
-	//	//가로 출력 
-	//	for (int j = 0; j < 50; j++) {
-	//		char ch = status[j][i]; //50, 5
 
-	//		POSITION pos_edited = { 1 + i , 
-	//			status_pos.column + j };
-	//		//세로 위치, 가로 위치
-	//		printc(pos_edited, ch, COLOR_DEFAULT); //위치, 문자열, 색상
-	//	}
-	//}
+// 시스템 메시지
+void display_system_message() {
+	//윗줄
+	gotoxy(systemMsg_pos); //20, 62
+	printf("=================================");
 
-	//첫줄, 막줄은 고정으로 출력, 
-	//중간만 특수 배열status_var[]의
-	//내용을 출력
+	//명령창 내용 출력
+	POSITION pos_pre = { systemMsg_pos.row+1 , map_pos.column };
+	POSITION pos_cur = { systemMsg_pos.row+2 , map_pos.column };
+	gotoxy(pos_pre);
+	printf("%s\n", systemMsg_var_pre); //이전 내용 출력
+	gotoxy(pos_cur);
+	printf("%s\n", systemMsg_var_cur); //현재 내용 출력
 
-	//status_var
+	//밑줄
+	POSITION pos_editedv2 = { 25, systemMsg_pos.column };
+	gotoxy(pos_editedv2); // 25, 62
+	printf("=================================");
+}
 
+//시스템 메시지 업데이트
+void change_systemMsg_display(char new_string[50]) {
+	//insertString(systemMsg_var_cur, new_string);
+	// 현재 메시지를 이전 메시지에 복사
+	strncpy(systemMsg_var_pre, systemMsg_var_cur, 50);
+	systemMsg_var_pre[49] = '\0'; // null terminator 추가
 
-
-	//단순 개념도
-	//char ch1 = status[0][0];
-	//char ch2 = status[0][1];
-
-	//int ch1_pos = status_pos.column + 1;
-	//int ch2_pos = status_pos.column + 2;
-
-	//POSITION pos1 = { 1, ch1_pos };
-	//POSITION pos2 = { 1, ch2_pos };
-
-	//printc(pos1, ch1, COLOR_DEFAULT); //위치, 문자열, 색상
-	//printc(pos2, ch2, COLOR_DEFAULT); //위치, 문자열, 색상
+	// 새로운 문자열을 현재 메시지에 복사
+	strncpy(systemMsg_var_cur, new_string, 50);
+	systemMsg_var_cur[49] = '\0'; // null terminator 추가
 }

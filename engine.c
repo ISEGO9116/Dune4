@@ -15,6 +15,11 @@ void cursor_select();
 int is_defined_object(int layer, int w, int h);
 POSITION sample_obj_next_position(void);
 void display_defined_object_info(int layer, int w, int h);
+void status_display_clear();
+void resource_Spice_Add(int amount);
+
+// 유닛 생성 시도
+void UnitGenerate(int cost, int population);
 
 /* ================= control =================== */
 int sys_clock = 0;		// system-wide clock(ms)
@@ -24,11 +29,12 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 /* ================= game data =================== */
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
+//테스트
 RESOURCE resource = {
-	.spice = 0,
-	.spice_max = 0,
+	.spice = 20,
+	.spice_max = 20,
 	.population = 0,
-	.population_max = 0
+	.population_max = 20
 };
 
 DUNE_OBJECT obj = {
@@ -42,17 +48,30 @@ DUNE_OBJECT obj = {
 
 /* ================= 유닛 =================== */
 //하베스터
-DUNE_OBJECT havester = {
+//DUNE_OBJECT havester = {
+//	.pos = {MAP_HEIGHT - 4, 1},
+//	.repr = 'H',
+//	.speed = 0,
+//	.next_move_time = 2000,
+//};
+//DUNE_OBJECT havester_AI = {
+//	.pos = {3, MAP_WIDTH - 2},
+//	.repr = 'H',
+//	.speed = 0,
+//	.next_move_time = 2000,
+//};
+
+DUNE_UNIT havester = {
 	.pos = {MAP_HEIGHT - 4, 1},
-	.repr = 'H',
-	.speed = 0,
-	.next_move_time = 2000,
+	.type = 'H',
+	.cost = 5,
+	.population = 5,
 };
-DUNE_OBJECT havester_AI = {
+DUNE_UNIT havester_AI = {
 	.pos = {3, MAP_WIDTH - 2},
-	.repr = 'H',
-	.speed = 0,
-	.next_move_time = 2000,
+	.type = 'H',
+	.cost = 5,
+	.population = 5,
 };
 
 
@@ -147,6 +166,20 @@ int main(void) {
 			// 방향키 외의 입력
 			switch (key) {
 			case k_quit: outro();
+			case k_esc: status_display_clear(0); 
+				Change_IsReadyForKey(0); //선택 취소
+				clear_command_display(); //명령창 클리어
+				continue;
+			case k_harvester:
+				if (State_IsReadyForKey()) { //T/F
+					//만약 선택한 상태에서 하베스터 입력시,
+					Change_IsReadyForKey(0); //작동했으니 비활성화하고
+					//하베스터 생산시도
+					UnitGenerate(5, 5);
+				}
+				else {
+					printf("현재false입니다.");
+				}
 			case k_space: cursor_select();
 			case k_none:
 			case k_undef:
@@ -180,11 +213,12 @@ void outro(void) {
 }
 
 /* ======== 유닛 생성 ========= */
-void spawn_unit(DUNE_OBJECT d_obj) {
-	POSITION pos = d_obj.pos;
-	int speed = d_obj.speed;
-	char Type = d_obj.repr;
-
+void spawn_unit(DUNE_UNIT d_obj) {
+	//int speed = d_obj.speed;
+	POSITION pos = d_obj.pos; //위치
+	char Type = d_obj.type;   //타입
+	int population;           //인구수
+	int cost;                 //생성 코스트
 	map[1][pos.row][pos.column] = Type;
 }
 
@@ -372,7 +406,9 @@ void display_defined_object_info(int layer, int w, int h) {
 	}
 	else { //지형 모드
 		switch (pos_char) {
-		case 'B': change_display_info(12); break;
+		case 'B': change_display_info(12); 
+			//기지 선택
+			break;
 		case 'P': change_display_info(13); break;
 		case 'R': change_display_info(14); break;
 		case 'S': change_display_info(15); break;
@@ -380,6 +416,11 @@ void display_defined_object_info(int layer, int w, int h) {
 			change_display_info(11); break;
 		}
 	}
+}
+
+//
+void status_display_clear() {
+	change_display_info(0);
 }
 
 /* ================= sample object movement =================== */
@@ -438,4 +479,44 @@ void sample_obj_move(void) {
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 
 	obj.next_move_time = sys_clock + obj.speed;
+}
+
+//유닛 생성 시도
+void UnitGenerate(int cost, int population) {
+	// 자원이 충분한지 확인
+	//자원 : 생산비용5, 인구수5, (일단 하드코딩)
+	if (resource.population + population <= resource.population_max) {
+		//인구수가 충분한지(현재인구수+생산할유닛인구수<=최대인구수)
+		if ((resource.spice - cost) >= 0) {
+			//자원이 충분한지(현재스파이스-유닛코스트<= 0)
+
+			//자원이 충분하다면 즉시 본진 옆에 하베스터 1기 생산
+			DUNE_UNIT harvester3 = {
+				.cost = 5,
+				.population = 5,
+				.pos = {16,3},
+				.type = 'H',
+			};
+			spawn_unit(harvester3);
+			resource_Spice_Add(-harvester3.cost);
+			//시스템 메시지 출력
+			change_systemMsg_display("하베스터가 생산되었습니다.          ");
+		}
+		else {
+			//자원이 부족할 경우
+			//시스템 메시지 출력
+			change_systemMsg_display("스파이스가 부족합니다.          ");
+		}
+		
+	}
+	else {
+		//인구수가 부족할 경우
+		//시스템 메시지 출력
+		change_systemMsg_display("인구수가 부족합니다.          ");
+	}
+}
+
+//스파이스 보유량 조절 함수
+void resource_Spice_Add(int amount) {
+	resource.spice += amount;
 }

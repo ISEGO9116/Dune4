@@ -34,6 +34,8 @@ typedef enum {
 	k_none = 0, k_up, k_right, k_left, k_down,
 	k_quit,
 	k_space,
+	k_esc,
+	k_harvester,
 	k_undef, // 정의되지 않은 키 입력	
 } KEY;
 
@@ -104,6 +106,13 @@ typedef struct {
 	int next_move_time;	// 다음에 움직일 시간
 	int speed;
 } DUNE_OBJECT;
+
+typedef struct {
+	POSITION pos; //현재 위치
+	char type; //표시기호
+	int population; //인구수
+	int cost; //생성 코스트
+} DUNE_UNIT; //유닛 구조체
 
 typedef struct {
 	POSITION pos;	//기준 위치
