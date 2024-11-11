@@ -74,6 +74,21 @@ DUNE_UNIT havester_AI = {
 	.population = 5,
 };
 
+DUNE_UNIT sandwarm = {
+	.pos = {5, 5},
+	.type = 'W',
+	.cost = 0,
+	.population = 0,
+};
+
+DUNE_UNIT sandwarm2 = {
+	.pos = {12, MAP_WIDTH - 7},
+	.type = 'W',
+	.cost = 0,
+	.population = 0,
+};
+
+
 
 /* ================= 지형, 건물 =================== */
 //기지
@@ -87,7 +102,21 @@ DUNE_STRUCTURE base_AI = {
 	.pos = {MAP_HEIGHT + 1, MAP_WIDTH - 2}, //두번째 인자가 가로, 첫 번째 인자가 높이
 	.direction = 1,
 	.radius = 2,
-	.type = 'A'
+	.type = 'B'
+};
+
+//장판
+DUNE_STRUCTURE Plate = {
+	.pos = {MAP_HEIGHT - 2, 3},
+	.direction = 0,
+	.radius = 2,
+	.type = 'P'
+};
+DUNE_STRUCTURE Plate_AI = {
+	.pos = {MAP_HEIGHT + 1, MAP_WIDTH - 4},
+	.direction = 1,
+	.radius = 2,
+	.type = 'P'
 };
 
 //스파이스 매장지
@@ -287,6 +316,8 @@ void init(void) {
 	//(실제 이동은 이동 함수에서 이루어지고 곧장 화면이 새로고침되면서 사라지기 때문)
 	spawn_struct(base);
 	spawn_struct(base_AI);
+	spawn_struct(Plate);
+	spawn_struct(Plate_AI);
 	spawn_struct(rock_small);
 	spawn_struct(rock_small_AI);
 	spawn_struct(rock_large);
@@ -297,6 +328,8 @@ void init(void) {
 	//오브젝트 생성
 	spawn_unit(havester);
 	spawn_unit(havester_AI);
+	spawn_unit(sandwarm);
+	spawn_unit(sandwarm2);
 	//map[1][havester.pos.row][havester.pos.column] = havester.repr;
 
 	//// object sample
