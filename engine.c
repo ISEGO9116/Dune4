@@ -1,4 +1,11 @@
-﻿#include <stdlib.h>
+﻿//어디까지 했는지 : 
+//1) 준비 (완료)
+//2) 커서 & 상태창 (완료)
+//3) 중립 유닛 (미완성)
+//4) 유닛 1기 생산 (완료)
+//5) 시스템 메시지 (완료)
+
+#include <stdlib.h>
 #include <time.h>
 #include <assert.h>
 #include "common.h"
@@ -231,13 +238,13 @@ int main(void) {
 
 /* ================= subfunctions =================== */
 void intro(void) {
-	printf("DUNE 1.5\n");
-	Sleep(2000);
+	printf("TV 애니메이션 : 걸즈 밴드 크라이 2기 기원\n");
+	Sleep(6000);
 	system("cls");
 }
 
 void outro(void) {
-	printf("exiting...\n");
+	printf("토에이님 제발 2기 주세요\n");
 	exit(0);
 }
 
