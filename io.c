@@ -28,6 +28,7 @@ KEY get_key(void) {
     int byte = _getch();    // 입력된 키를 전달 받기
     switch (byte) {
     case 'q': return k_quit;  // 'q'를 누르면 종료
+    case 'b': return b_build; // 'b'를 누르면 건설 모드
     case 'h': return k_harvester; //'h'를 누르면 하베스터 명령
     case ' ': return k_space; // 공백 = 스페이스 감지
     case 27: return k_esc;    // ESC 키 감지

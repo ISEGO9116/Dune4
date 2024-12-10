@@ -7,13 +7,14 @@
 
 #include "display.h"
 #include "io.h"
+#include "stdbool.h"
 
 // 출력할 내용들의 좌상단(topleft) 좌표
-const POSITION resource_pos = { 0, 0 };
+const POSITION resource_pos = { 0, 0 }; //자원 위치
 const POSITION map_pos = { 1, 0 };
 const POSITION status_pos = { 1, 62 }; //상태창 위치
-const POSITION comand_pos = {21, 62}; //명령창 위치
-const POSITION systemMsg_pos = { 20, 0 }; //명령창 위치
+const POSITION comand_pos = {20, 62}; //명령창 위치
+const POSITION systemMsg_pos = { 20, 0 }; //시스템 메시지 위치
 
 
 char backbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
@@ -46,7 +47,9 @@ void change_command_display(char string[50]);
 void Change_IsReadyForKey(int to);
 //시스템 메시지
 void display_system_message();
-void change_systemMsg_display(char string[50]);
+//void change_systemMsg_display(char string[50]);
+//void inspectBuildList_command_display();
+//void write_command_display();
 
 void display(
 	RESOURCE resource,
@@ -114,7 +117,9 @@ void display_cursor(CURSOR cursor) {
 	printc(padd(map_pos, curr), ch, COLOR_CURSOR);
 }
 
-//배열에 문자열 삽입
+/// <summary>
+/// 배열에 문자열 삽입
+/// </summary>
 void insertString(char status_var[], const char* input) {
 	strncpy(status_var, input, 50);
 	status_var[49] = '\0'; // null terminator 추가
@@ -124,13 +129,14 @@ void change_display_info(int obj_id) {
 	//1n : 지형 (11 : 사막)
 	//2n : 유닛
 	switch (obj_id) {
+	//명령창 클리어
 	case 0: insertString(status_var, "                ");
 		break;
 	case 11: insertString(status_var, "사막지형      ");
 		break;
 	case 12: insertString(status_var, "기지            ");
 		//명령창에 명령어 표시
-		change_command_display("하베스터(H)");
+		change_command_display("하베스터(H)?");
 		//키 입력 대기 상태로 전환
 		Change_IsReadyForKey(1);
 		//만약 대기 상태에서 유닛 키 입력시 생산 시작 / ESC시, 선택 취소
@@ -148,49 +154,30 @@ void change_display_info(int obj_id) {
 	}
 }
 
+//상태창
 void display_object_info() {
-	gotoxy(status_pos);
-	printf("=================================");
+	gotoxy(status_pos); //(1, 62)
+	printf("+=============상태창=============+");
 	//상태창 내용 출력
 	POSITION pos_edited = { 2 , status_pos.column };
 	gotoxy(pos_edited);
 	printf("%s\n", status_var);
-	//for (int i = 0; i < 20; i++) {
-	//	POSITION pos_edited = { 2 , status_pos.column+i };
-	//	printc(pos_edited, status_var, COLOR_DEFAULT);
-	//}
 	POSITION pos_editedv2 = { 10 , status_pos.column };
 	gotoxy(pos_editedv2);
-	printf("=================================");
+	printf("-===============================-");
 }
 
 //명령창
 void display_commands() {
-	//윗줄
 	gotoxy(comand_pos); //20, 62
-	printf("=================================");
-	
+	printf("+============명령창============+"); //윗줄
 	//명령창 내용 출력
-	POSITION pos_edited = { 11 , status_pos.column };
+	POSITION pos_edited = { 21 , comand_pos.column };
 	gotoxy(pos_edited);
-	//clear_command_display(); //명령창 클리어
 	printf("%s\n", command_var);
-
-	//밑줄
-	POSITION pos_editedv2 = { 25, comand_pos.column };
+	POSITION pos_editedv2 = { 25, comand_pos.column }; //밑줄
 	gotoxy(pos_editedv2); // 25, 62
-	printf("=================================");
-}
-
-//명령창 클리어
-void clear_command_display() {
-	insertString(command_var, "                              ");
-}
-
-//명령창 업데이트
-void change_command_display(char string[50]) {
-	insertString(command_var, string);
-	//텍스트 변경
+	printf("-==============================-");
 }
 
 //isReadyForKey가 T/F인지 확인
@@ -214,7 +201,7 @@ void Change_IsReadyForKey(int to) {
 void display_system_message() {
 	//윗줄
 	gotoxy(systemMsg_pos); //20, 62
-	printf("=================================");
+	printf("+============시스템============+");
 
 	//명령창 내용 출력
 	POSITION pos_pre = { systemMsg_pos.row+1 , map_pos.column };
@@ -227,7 +214,7 @@ void display_system_message() {
 	//밑줄
 	POSITION pos_editedv2 = { 25, systemMsg_pos.column };
 	gotoxy(pos_editedv2); // 25, 62
-	printf("=================================");
+	printf("-==============================-");
 }
 
 //시스템 메시지 업데이트
@@ -240,4 +227,28 @@ void change_systemMsg_display(char new_string[50]) {
 	// 새로운 문자열을 현재 메시지에 복사
 	strncpy(systemMsg_var_cur, new_string, 50);
 	systemMsg_var_cur[49] = '\0'; // null terminator 추가
+}
+
+
+
+// ======== 명령창 ======== //
+/// <summary>
+/// 명령창 업데이트
+/// </summary>
+void change_command_display(char new_string[50]) {
+	insertString(command_var, new_string);
+}
+
+/// <summary>
+/// 명령창 클리어
+/// </summary>
+void clear_command_display() {
+	insertString(command_var, "B: Build!       ");
+}
+
+/// <summary>
+/// 명령창에 건설 가능한 건물 목록 띄우기
+/// </summary>
+void inspectBuildList_command_display() {
+	insertString(command_var, "P: Plate  ");
 }

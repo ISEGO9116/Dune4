@@ -24,6 +24,10 @@ POSITION sample_obj_next_position(void);
 void display_defined_object_info(int layer, int w, int h);
 void status_display_clear();
 void resource_Spice_Add(int amount);
+void display_command_inspectBuildList();
+void BuildMode_ChangeState(bool state);
+bool BuildMode_GetBuildMode();
+void BuildMode_Prepare();
 
 // 유닛 생성 시도
 void UnitGenerate(int cost, int population);
@@ -35,6 +39,9 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 
 /* ================= game data =================== */
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
+
+// ==== 전역 변수 : 상태제어 ====
+bool isBuildMode = false;
 
 //테스트
 RESOURCE resource = {
@@ -202,6 +209,9 @@ int main(void) {
 			// 방향키 외의 입력
 			switch (key) {
 			case k_quit: outro();
+			case b_build:
+				BuildMode_Prepare();
+				//건설 가능한 건물 목록 명령창에 표시
 			case k_esc: status_display_clear(0); 
 				Change_IsReadyForKey(0); //선택 취소
 				clear_command_display(); //명령창 클리어
@@ -239,7 +249,7 @@ int main(void) {
 /* ================= subfunctions =================== */
 void intro(void) {
 	printf("TV 애니메이션 : 걸즈 밴드 크라이 2기 기원\n");
-	Sleep(6000);
+	Sleep(2000);
 	system("cls");
 }
 
@@ -446,7 +456,7 @@ void display_defined_object_info(int layer, int w, int h) {
 	}
 	else { //지형 모드
 		switch (pos_char) {
-		case 'B': change_display_info(12); 
+		case 'B': change_display_info(12);
 			//기지 선택
 			break;
 		case 'P': change_display_info(13); break;
@@ -559,4 +569,35 @@ void UnitGenerate(int cost, int population) {
 //스파이스 보유량 조절 함수
 void resource_Spice_Add(int amount) {
 	resource.spice += amount;
+}
+
+
+
+// ===== 건설 =====
+// 흐름-1) 'BuildMode_Prepare'
+// 트리거 : B키 다운
+// 1. 빌드 모드 활성화
+// 2. 명령창에 건물 목록 표시
+void BuildMode_Prepare() {
+	BuildMode_ChangeState(true); //빌드 모드 활성화
+	display_command_inspectBuildList(); // 건물 목록 표시
+}
+
+//건설 모드 on / off
+void BuildMode_ChangeState(bool state) {
+	isBuildMode = state;
+	change_systemMsg_display("빌드모드 변경.          ");
+}
+
+void display_command_inspectBuildList() {
+	clear_command_display();
+	//change_command_display("Terset");	
+	inspectBuildList_command_display();
+	change_systemMsg_display("건물 목록 표시.      ");
+	
+}
+
+//빌드 모드 가져오는 함수
+bool BuildMode_GetBuildMode() {
+	return isBuildMode;
 }

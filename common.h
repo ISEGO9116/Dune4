@@ -33,6 +33,7 @@ typedef enum {
 	// k_none: 입력된 키가 없음. d_stay(안 움직이는 경우)에 대응
 	k_none = 0, k_up, k_right, k_left, k_down,
 	k_quit,
+	b_build,
 	k_space,
 	k_esc,
 	k_harvester,
